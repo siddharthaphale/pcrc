@@ -1,0 +1,99 @@
+# PCRC-RC (Stage 3) — in-air FetchPickAndPlace reverse-curriculum scaffold.
+#
+# Stage 3 of the plan (provenance: docs/EXPERIMENTS.md). Runs ONLY
+# if Stage 2 (PCRC-Nav) passes. Scaffold level = reverse-curriculum start_progress
+# (object interpolated toward the goal; in-air goals synthesize a grasped state via
+# FetchEnvironment._apply_reverse_curriculum). ell=0 true start, ell=L easiest.
+#
+# PREREQUISITE: the in-air calibration bank below is gitignored and not on disk —
+# regenerate it first (priority-1a Fetch calibration) before running.
+#
+# Conditions reuse the same driver mapping as Stage 2 (pcrc.training.conditions):
+#   uniform | global_linear_continuous | global_anneal | random_scaffold | per_context_success |
+#   per_context_uncertainty_priority | pcrc. The Fetch driver (scripts/fetch_sac_her.py) routes
+#   --conditions through resolve_condition with --seed, same as scripts/pointmaze_sac_her.py.
+
+defaults:
+  bank_path: results/priority_1a_pnp_sparse_calibration/calibration/bank.json
+  env_id: FetchPickAndPlace-v4
+
+loop:
+  n_iterations: 3000
+  max_steps_per_episode: 50
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 300000
+  minibatch_size: 256
+  learning_starts: 1000
+  # Parallelism bump (CPU rollout is the bottleneck; Fetch PnP is MuJoCo CPU-bound).
+  # 8 -> 16 workers ~doubles rollout throughput; updates_per_iter scaled 16 -> 32 to
+  # KEEP the HER-paper-like update:env-step ratio (~0.04) so the harder PnP task still
+  # learns. env_steps is the budget axis and num_workers is shared across ALL conditions,
+  # so the pcrc-vs-baseline comparison stays fair. SLURM: use --cpus-per-task>=20.
+  num_workers: 16
+  updates_per_iter: 32
+  # Finer eval cadence from Gate C onward (autonomous plan §1.2: >=2x the prior 300,
+  # set once at C and kept through F so fixed-env-step AUC stays cross-gate comparable
+  # and T_gamma is less cadence-quantized). 1800 iters / 150 = 12 evals; last step==1800.
+  eval_interval: 150
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.05
+  reward_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+  random_eps: 0.3
+  noise_eps: 0.2
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+# Shared across scaffold conditions; mode is set per-condition by the driver.
+scaffold:
+  n_levels: 5
+  level_fractions: [0.0, 0.25, 0.5, 0.75, 0.9]
+  # oracle group->level map (driver builds scaffold_oracle_levels from goal-z). Set for the
+  # Gate C sharp bank from the C1 per-stratum argmax: on-table (z<0.45) -> L0, in-air -> L4
+  # (moderate L2~=L4=0.96 -> L4; hard L4=0.92>L2=0.88). 2-way threshold suffices.
+  oracle_z_threshold: 0.45
+  oracle_low_level: 0
+  oracle_high_level: 4
+  kwargs:
+    lambda_h: 1.0
+    lambda_u: 1.0
+    lambda_p: 0.2
+    lambda_stale: 0.1
+    tau: 0.5
+    epsilon: 0.1
+    beta_s: 0.2
+    beta_u: 0.2
+    tau_lo: 0.15
+    tau_hi: 0.8
+    u_lo: -0.25
+    u_hi: 0.5
+    n_min: 15
+    cooldown: 3
+    hysteresis_windows: 2
+    # Anti-stall: force frontier progress toward ℓ=0 when a context parks in the dead band
+    # (moderate success, no advance/retreat) for 4 windows (autonomous-plan Gate C2 rescue —
+    # fixes the hard PnP group stalling at high scaffold with ℓ=0 eval=0.00 on some seeds).
+    stale_advance_windows: 4
+    clip: 3.0
+    anneal_iters: 2000   # global_anneal schedule over n_iterations=3000
+
+# Legacy continuous reverse curriculum for the `global_linear_continuous` bridge condition.
+reverse_curriculum:
+  reverse_curriculum: true
+  reverse_curriculum_start_progress: 0.9
+  reverse_curriculum_decay_iters: 2000
+
+sampler_kwargs:
+  uniform: {}

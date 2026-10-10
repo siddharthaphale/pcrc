@@ -1,0 +1,63 @@
+# Meta-World push-v3 + demos+BC — GATE-1b learnability UNLOCK.
+#
+# Vanilla SAC+HER does NOT learn push-v3 from scratch (the arm starts away from the object -> a
+# reach-then-push wall with no gradient for reaching; HER degenerates; alpha collapses; held-out
+# flat 0.0 over 2.4M env-steps). See docs/gymrobotics_results/metaworld_push_gate1_results.md.
+# Nair 2018's fix: seed the replay buffer + a BC auxiliary loss with SUCCESSFUL demos. push-v3 is
+# oracle-verified solvable (SawyerPushV3Policy -> 10/10), so we collect 100 oracle demos
+# (scripts/collect_metaworld_demos.py, SAME bank_seed=0) and turn on demos+BC here.
+# GATE 1b: does held-out success climb > ~0.2? PASS -> curriculum screen; FAIL/TIE -> stop.
+# Plan: docs/metaworld_generalization_plan.md.
+
+defaults:
+  env_id: metaworld:push-v3
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 2000          # learnability smoke; budget ~ 2000*8*150 env-steps
+  max_steps_per_episode: 150  # Meta-World defaults to 500; cap for HER + throughput
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 400000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.05
+  reward_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+  # HER-paper action exploration (helps seed contacts).
+  random_eps: 0.3
+  noise_eps: 0.2
+  num_workers: 8
+  diagnostic_compute_utility: true   # Phase 1.5: within-band diagnostic from the uniform run
+  # demos + behavior-cloning (Nair 2018) — the learnability unlock for the reach-then-push wall.
+  demos_path: results/mw_demos/push_demos.npz
+  bc_lambda: 0.1
+  use_q_filter: true
+  bc_minibatch_size: 128
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+sampler_kwargs:
+  uniform: {}
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  uncertainty:
+    alpha: 3.0
+    ema_alpha: 0.2

@@ -1,0 +1,32 @@
+# MiniGrid DoorKey-8x8 — PCRC discrete-PPO natural-task run (docs/pcrc_new_tasks/EXECUTION_PLAN.md C).
+# Discrete sequential interaction (key -> locked door -> goal), partial 7x7 observation. Scaffold = stage
+# completion (0 true start ... 4 next to goal). Evaluation always on held-out layouts at level 0.
+# Conditions resolve in scripts/minigrid_ppo.py.
+
+defaults:
+  env_id: MiniGrid-DoorKey-8x8-v0
+  n_train: 200
+  n_held: 100
+  bank_seed: 0
+
+loop:
+  n_iterations: 2000
+  episodes_per_iter: 16
+  max_steps: 160
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip: 0.2
+  epochs: 4
+  minibatch: 1024
+  lr: 2.5e-4
+  ent_coef: 0.01
+  encoder: cnn
+  eval_interval: 50
+  n_eval_episodes: 50
+  seed: 0
+
+scaffold:
+  n_levels: 5
+  level_fractions: [0.0, 0.25, 0.5, 0.75, 1.0]
+  anneal_iters: 1500
+  stale_advance_windows: 4

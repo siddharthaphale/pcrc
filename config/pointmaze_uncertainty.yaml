@@ -1,0 +1,67 @@
+# Cross-domain test — PointMaze (non-Fetch sparse goal-reaching) + SAC + HER.
+#
+# Ports the value-uncertainty curriculum to a NON-Fetch env. PointMaze is
+# goal-conditioned exactly like Fetch (observation/achieved_goal/desired_goal,
+# sparse reward, continuous 2-D action), so the existing SAC+HER loop runs on it
+# unchanged via the env_id-prefix dispatch in fetch_sac_her_loop._make_task_env.
+#
+# Difficulty = maze distance start->goal => a Push-like heterogeneous low-success
+# band, the regime where the uncertainty curriculum (td_error / q_disagreement)
+# beats headroom. reward_distance_threshold=0.45 (half a maze cell) keeps the HER
+# relabel reward consistent with PointMaze success.
+#
+# The bank is built deterministically (PointMazeTaskBank.build, seed=0) in the
+# driver, so every condition/seed sees identical contexts.
+
+defaults:
+  env_id: PointMaze_Medium-v3
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 2000
+  max_steps_per_episode: 300
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 300000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.45
+  reward_distance_threshold: 0.45
+  success_ema_alpha: 0.2
+  # PointMaze is fully actuated, low-D — the Fetch contact-seeding exploration
+  # (random_eps/noise_eps) is unnecessary and can hurt; keep light.
+  random_eps: 0.1
+  noise_eps: 0.1
+  num_workers: 6
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+sampler_kwargs:
+  uniform: {}
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  uncertainty:
+    alpha: 3.0
+    ema_alpha: 0.2
+  headroom_actor:
+    alpha: 20.0
+    beta: 3.0
+    ema_alpha: 0.1
+    util_ema_alpha: 0.2

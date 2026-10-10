@@ -1,0 +1,78 @@
+# PointMaze Large LONG-HORIZON, 9-LEVEL ladder — the principled follow-up to the [14,18] boundary.
+# The 5-level run (config/pointmaze_longhorizon.yaml) stalled: the curriculum mastered the easy levels but
+# never transferred to ℓ=0 (held-out ~0 for all conditions). DoorKey B.2 established that a longer horizon
+# needs FINER granularity (9 levels > 5). This halves the level-1→2 gap (~4.5→~2.25 cells); if that lets the
+# curriculum climb down to the true start, it converts the continuous-control boundary into a positive
+# long-horizon result. Same [14,18] bank (pointmaze_longhorizon_geodesic.json, sha a8a03a38), FROZEN
+# controller, eval at ℓ=0 (eval env inherits max_steps via the pointmaze_sac_her.py fix). ONLY n_levels/
+# level_fractions change (chartered scaffold-structure knob, not a controller hyperparameter).
+
+defaults:
+  env_id: PointMaze_Large-v3
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 4000
+  max_steps_per_episode: 500
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 300000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.45
+  reward_distance_threshold: 0.45
+  success_ema_alpha: 0.2
+  random_eps: 0.1
+  noise_eps: 0.1
+  num_workers: 6
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+scaffold:
+  n_levels: 9
+  level_fractions: [0.0, 0.1125, 0.225, 0.3375, 0.45, 0.5625, 0.675, 0.7875, 0.9]
+  oracle_direct_level: 8
+  oracle_bypass_level: 0
+  kwargs:
+    lambda_h: 1.0
+    lambda_u: 1.0
+    lambda_p: 0.2
+    lambda_stale: 0.1
+    tau: 0.5
+    epsilon: 0.1
+    beta_s: 0.2
+    beta_u: 0.2
+    tau_lo: 0.15
+    tau_hi: 0.8
+    u_lo: -0.25
+    u_hi: 0.5
+    n_min: 15
+    cooldown: 3
+    hysteresis_windows: 2
+    stale_advance_windows: 4
+    clip: 3.0
+    anneal_iters: 1500
+
+reverse_curriculum:
+  reverse_curriculum: true
+  reverse_curriculum_start_progress: 0.9
+  reverse_curriculum_decay_iters: 1500
+
+sampler_kwargs:
+  uniform: {}

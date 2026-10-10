@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying paper."
+title: "Per-Context Reverse Curricula for Sparse-Reward Reinforcement Learning"
+type: software
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/siddharthaphale/pcrc"
+authors:
+  - family-names: Aphale
+    given-names: Siddharth
+  - family-names: Singh
+    given-names: Ayushman
+preferred-citation:
+  type: article
+  title: "Per-Context Reverse Curricula for Sparse-Reward Reinforcement Learning"
+  authors:
+    - family-names: Aphale
+      given-names: Siddharth
+    - family-names: Singh
+      given-names: Ayushman
+  year: 2026
+  journal: arXiv
+  doi: "10.48550/arXiv.2607.26417"
+  url: "https://arxiv.org/abs/2607.26417"

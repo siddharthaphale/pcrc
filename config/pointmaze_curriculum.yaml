@@ -1,0 +1,89 @@
+# PCRC-Nav (Stage 2) — PointMaze reset-distance scaffold validation.
+#
+# The go/no-go first validation (provenance: docs/EXPERIMENTS.md).
+# Scaffold level = geodesic reset distance along the shortest path to the goal
+# (ell=0 true start, ell=L easiest). The driver maps each --conditions name to a
+# config bundle (sampler + scaffold_enabled/scaffold_mode); see scripts/pointmaze_sac_her.py.
+# Eval is always at ell=0 (true start) — the controller never touches eval.
+#
+# Conditions: uniform | global_linear_continuous | global_anneal | random_scaffold |
+#             per_context_success | per_context_uncertainty_priority | pcrc
+# Seeds: 42-46 paired (bank_seed fixed => identical bank/held-out split across all).
+
+defaults:
+  env_id: PointMaze_Medium-v3
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 2500
+  max_steps_per_episode: 300
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 300000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.45
+  reward_distance_threshold: 0.45
+  success_ema_alpha: 0.2
+  random_eps: 0.1
+  noise_eps: 0.1
+  num_workers: 6
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+# Shared across all scaffold conditions. mode is set per-condition by the driver
+# (NOT here — it would collide with ScaffoldConfig(mode=...)).
+scaffold:
+  n_levels: 5
+  level_fractions: [0.0, 0.25, 0.5, 0.75, 0.9]
+  # oracle route-group→level map for the Nav-bypass bank (Gate D): direct→high scaffold
+  # (increasing transfer), bypass→true start (decreasing transfer; high scaffold bypasses the turn).
+  oracle_direct_level: 4
+  oracle_bypass_level: 0
+  kwargs:
+    lambda_h: 1.0
+    lambda_u: 1.0
+    lambda_p: 0.2
+    lambda_stale: 0.1
+    tau: 0.5
+    epsilon: 0.1
+    beta_s: 0.2
+    beta_u: 0.2
+    tau_lo: 0.15
+    tau_hi: 0.8
+    u_lo: -0.25
+    u_hi: 0.5
+    n_min: 15
+    cooldown: 3
+    hysteresis_windows: 2
+    stale_advance_windows: 4   # anti-stall (Gate C2 fix), carried to Nav
+    clip: 3.0
+    anneal_iters: 1500   # global_anneal baseline schedule (levels L->0)
+
+# Legacy continuous reverse curriculum, for the `global_linear_continuous` bridge condition only
+# (PointMaze reset now accepts a continuous start_progress = geodesic fraction).
+reverse_curriculum:
+  reverse_curriculum: true
+  reverse_curriculum_start_progress: 0.9
+  reverse_curriculum_decay_iters: 1500
+
+# Only the loop_condition actually used (uniform) needs kwargs; PCRC conditions
+# run the uniform sampler purely for distribution logging (controller drives selection).
+sampler_kwargs:
+  uniform: {}

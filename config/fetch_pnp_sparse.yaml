@@ -1,0 +1,59 @@
+defaults:
+  bank_path: results/priority_1a_pnp_sparse_calibration/calibration/bank.json
+  env_id: FetchPickAndPlace-v4
+loop:
+  n_iterations: 3000
+  max_steps_per_episode: 50
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 200000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 300
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+  random_eps: 0.3
+  noise_eps: 0.2
+  num_workers: 8
+sac:
+  hidden_sizes:
+  - 256
+  - 256
+  learning_rate: 0.0003
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+sampler_kwargs:
+  uniform: {}
+  reward_greedy:
+    alpha: 5.0
+    ema_alpha: 0.1
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  learning_progress:
+    alpha: 10.0
+    fast_ema_alpha: 0.3
+    slow_ema_alpha: 0.05
+  tabular_actor_curator:
+    eta: 0.3
+  mlp_actor_curator:
+    alpha: 1.0
+    learning_rate: 0.001
+    clip_eps: 0.2
+    n_epochs: 4
+    hidden_sizes:
+    - 64
+    - 64
+    dropout: 0.0
+    weight_decay: 0.0
+    feature_noise: 0.0
+    feature_perturbation: none

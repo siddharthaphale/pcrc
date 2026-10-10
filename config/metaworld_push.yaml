@@ -1,0 +1,55 @@
+# Meta-World push-v3 — generalization spike for the value-uncertainty curriculum.
+#
+# Meta-World pushing tasks are contact-rich quasi-static planar pushing (structurally the closest
+# thing to FetchPush, the n=1 win). Made HER-compatible by metaworld_env.py (frozen rand_vec
+# contexts; achieved=_get_pos_objects, desired=_target_pos; goal stripped from obs; sparse 0/-1 at
+# the 0.05 success threshold). The bank is built deterministically in the driver.
+# Plan: docs/metaworld_generalization_plan.md.
+
+defaults:
+  env_id: metaworld:push-v3
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 2000          # Phase-1 learnability probe; budget ~ 2000*8*150 env-steps
+  max_steps_per_episode: 150  # Meta-World defaults to 500; cap for HER + throughput
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 400000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.05
+  reward_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+  # HER-paper action exploration (helps seed contacts).
+  random_eps: 0.3
+  noise_eps: 0.2
+  num_workers: 8
+  diagnostic_compute_utility: true   # Phase 1.5: within-band diagnostic from the uniform run
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+sampler_kwargs:
+  uniform: {}
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  uncertainty:
+    alpha: 3.0
+    ema_alpha: 0.2

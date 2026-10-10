@@ -1,0 +1,406 @@
+{
+  "contexts": [
+    {
+      "context_id": 0,
+      "seed": 3581332,
+      "split": "train"
+    },
+    {
+      "context_id": 1,
+      "seed": 1066479,
+      "split": "train"
+    },
+    {
+      "context_id": 2,
+      "seed": 7570448,
+      "split": "train"
+    },
+    {
+      "context_id": 3,
+      "seed": 6045508,
+      "split": "train"
+    },
+    {
+      "context_id": 4,
+      "seed": 6206095,
+      "split": "train"
+    },
+    {
+      "context_id": 5,
+      "seed": 359271,
+      "split": "train"
+    },
+    {
+      "context_id": 6,
+      "seed": 7263245,
+      "split": "train"
+    },
+    {
+      "context_id": 7,
+      "seed": 6291654,
+      "split": "train"
+    },
+    {
+      "context_id": 8,
+      "seed": 2782380,
+      "split": "train"
+    },
+    {
+      "context_id": 9,
+      "seed": 1357937,
+      "split": "train"
+    },
+    {
+      "context_id": 10,
+      "seed": 2332656,
+      "split": "train"
+    },
+    {
+      "context_id": 11,
+      "seed": 231568,
+      "split": "train"
+    },
+    {
+      "context_id": 12,
+      "seed": 6110025,
+      "split": "train"
+    },
+    {
+      "context_id": 13,
+      "seed": 7841600,
+      "split": "train"
+    },
+    {
+      "context_id": 14,
+      "seed": 2735773,
+      "split": "train"
+    },
+    {
+      "context_id": 15,
+      "seed": 6005054,
+      "split": "train"
+    },
+    {
+      "context_id": 16,
+      "seed": 5760014,
+      "split": "train"
+    },
+    {
+      "context_id": 17,
+      "seed": 3483032,
+      "split": "train"
+    },
+    {
+      "context_id": 18,
+      "seed": 6780564,
+      "split": "train"
+    },
+    {
+      "context_id": 19,
+      "seed": 9930730,
+      "split": "train"
+    },
+    {
+      "context_id": 20,
+      "seed": 2395734,
+      "split": "train"
+    },
+    {
+      "context_id": 21,
+      "seed": 2487318,
+      "split": "train"
+    },
+    {
+      "context_id": 22,
+      "seed": 8984046,
+      "split": "train"
+    },
+    {
+      "context_id": 23,
+      "seed": 4857168,
+      "split": "train"
+    },
+    {
+      "context_id": 24,
+      "seed": 3537600,
+      "split": "train"
+    },
+    {
+      "context_id": 25,
+      "seed": 5087251,
+      "split": "train"
+    },
+    {
+      "context_id": 26,
+      "seed": 5210493,
+      "split": "train"
+    },
+    {
+      "context_id": 27,
+      "seed": 4821192,
+      "split": "train"
+    },
+    {
+      "context_id": 28,
+      "seed": 9689812,
+      "split": "train"
+    },
+    {
+      "context_id": 29,
+      "seed": 8438177,
+      "split": "train"
+    },
+    {
+      "context_id": 30,
+      "seed": 3648967,
+      "split": "held_out"
+    },
+    {
+      "context_id": 31,
+      "seed": 737931,
+      "split": "held_out"
+    },
+    {
+      "context_id": 32,
+      "seed": 3467140,
+      "split": "held_out"
+    },
+    {
+      "context_id": 33,
+      "seed": 2113676,
+      "split": "held_out"
+    },
+    {
+      "context_id": 34,
+      "seed": 3434329,
+      "split": "held_out"
+    },
+    {
+      "context_id": 35,
+      "seed": 271772,
+      "split": "held_out"
+    },
+    {
+      "context_id": 36,
+      "seed": 8840329,
+      "split": "held_out"
+    },
+    {
+      "context_id": 37,
+      "seed": 5893734,
+      "split": "held_out"
+    },
+    {
+      "context_id": 38,
+      "seed": 8303165,
+      "split": "held_out"
+    },
+    {
+      "context_id": 39,
+      "seed": 1824439,
+      "split": "held_out"
+    },
+    {
+      "context_id": 40,
+      "seed": 900136,
+      "split": "held_out"
+    },
+    {
+      "context_id": 41,
+      "seed": 4874052,
+      "split": "held_out"
+    },
+    {
+      "context_id": 42,
+      "seed": 1745577,
+      "split": "held_out"
+    },
+    {
+      "context_id": 43,
+      "seed": 7679486,
+      "split": "held_out"
+    },
+    {
+      "context_id": 44,
+      "seed": 6614333,
+      "split": "held_out"
+    },
+    {
+      "context_id": 45,
+      "seed": 3325179,
+      "split": "held_out"
+    },
+    {
+      "context_id": 46,
+      "seed": 4894538,
+      "split": "held_out"
+    },
+    {
+      "context_id": 47,
+      "seed": 3804002,
+      "split": "held_out"
+    },
+    {
+      "context_id": 48,
+      "seed": 225973,
+      "split": "held_out"
+    },
+    {
+      "context_id": 49,
+      "seed": 5708612,
+      "split": "held_out"
+    },
+    {
+      "context_id": 50,
+      "seed": 5330721,
+      "split": "held_out"
+    },
+    {
+      "context_id": 51,
+      "seed": 414500,
+      "split": "held_out"
+    },
+    {
+      "context_id": 52,
+      "seed": 2775480,
+      "split": "held_out"
+    },
+    {
+      "context_id": 53,
+      "seed": 694763,
+      "split": "held_out"
+    },
+    {
+      "context_id": 54,
+      "seed": 6921254,
+      "split": "held_out"
+    },
+    {
+      "context_id": 55,
+      "seed": 5629676,
+      "split": "held_out"
+    },
+    {
+      "context_id": 56,
+      "seed": 3374058,
+      "split": "held_out"
+    },
+    {
+      "context_id": 57,
+      "seed": 504718,
+      "split": "held_out"
+    },
+    {
+      "context_id": 58,
+      "seed": 6712579,
+      "split": "held_out"
+    },
+    {
+      "context_id": 59,
+      "seed": 2869391,
+      "split": "held_out"
+    },
+    {
+      "context_id": 60,
+      "seed": 4874070,
+      "split": "held_out"
+    },
+    {
+      "context_id": 61,
+      "seed": 6238871,
+      "split": "held_out"
+    },
+    {
+      "context_id": 62,
+      "seed": 8442672,
+      "split": "held_out"
+    },
+    {
+      "context_id": 63,
+      "seed": 2495308,
+      "split": "held_out"
+    },
+    {
+      "context_id": 64,
+      "seed": 7750221,
+      "split": "held_out"
+    },
+    {
+      "context_id": 65,
+      "seed": 7025211,
+      "split": "held_out"
+    },
+    {
+      "context_id": 66,
+      "seed": 3431585,
+      "split": "held_out"
+    },
+    {
+      "context_id": 67,
+      "seed": 6973206,
+      "split": "held_out"
+    },
+    {
+      "context_id": 68,
+      "seed": 2693095,
+      "split": "held_out"
+    },
+    {
+      "context_id": 69,
+      "seed": 8807954,
+      "split": "held_out"
+    },
+    {
+      "context_id": 70,
+      "seed": 763536,
+      "split": "held_out"
+    },
+    {
+      "context_id": 71,
+      "seed": 3459014,
+      "split": "held_out"
+    },
+    {
+      "context_id": 72,
+      "seed": 8935495,
+      "split": "held_out"
+    },
+    {
+      "context_id": 73,
+      "seed": 3023364,
+      "split": "held_out"
+    },
+    {
+      "context_id": 74,
+      "seed": 2293412,
+      "split": "held_out"
+    },
+    {
+      "context_id": 75,
+      "seed": 5695290,
+      "split": "held_out"
+    },
+    {
+      "context_id": 76,
+      "seed": 1768165,
+      "split": "held_out"
+    },
+    {
+      "context_id": 77,
+      "seed": 1108973,
+      "split": "held_out"
+    },
+    {
+      "context_id": 78,
+      "seed": 2144145,
+      "split": "held_out"
+    },
+    {
+      "context_id": 79,
+      "seed": 656754,
+      "split": "held_out"
+    }
+  ],
+  "env_id": "MiniGrid-DoorKey-16x16-v0",
+  "schema": "minigrid-1"
+}

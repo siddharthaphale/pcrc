@@ -1,0 +1,96 @@
+[project]
+name = "pcrc"
+version = "0.1.0"
+description = "Automatic trajectory-derived scaffold construction for curriculum RL."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.13",
+  "pyyaml>=6",
+  "minigrid>=3.1.0",
+  "gymnasium>=1.2",
+]
+
+[project.optional-dependencies]
+train = [
+  "torch>=2.4",
+]
+robotics = [
+  "gymnasium-robotics>=1.4.2",
+  "mujoco>=3.0",
+  "metaworld>=3.0",
+]
+eval = [
+  "matplotlib>=3.8",
+  "seaborn>=0.13",
+  "pandas>=2.0",
+  "wandb",
+]
+test = [
+  "pytest>=8",
+  "pytest-dependency>=0.6",
+]
+
+[dependency-groups]
+dev = [
+  "ipython>=8.0",
+  "ruff>=0.5",
+  "pre-commit>=3.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pcrc"]
+
+[tool.pytest.ini_options]
+markers = [
+  "gpu: requires CUDA; auto-skipped on CPU-only hosts (see tests/gpu/conftest.py)",
+  "slow: long-running test (>30 s)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["notebooks/", "*.ipynb"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",
+  "F",
+  "I",
+  "N",
+  "UP",
+  "B",
+  "SIM",
+  "RET",
+  "D",
+]
+ignore = [
+  "B008",
+  "N803",
+  "N806",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pcrc"]
+force-sort-within-sections = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "D", "E501", "E741", "B905", "SIM115", "B007", "F841", "E731"]
+"scripts/**/*.py" = ["INP001", "E501", "D", "E741", "B905", "SIM115", "B007", "F841", "E731", "N812"]
+"src/pcrc/**/__init__.py" = ["F401"]
+"src/pcrc/algorithms/**/*.py" = ["D", "E501", "E741", "N812", "B905", "F841"]
+"src/pcrc/samplers/**/*.py" = ["D", "E501"]
+"src/pcrc/training/**/*.py" = ["D", "E501", "B905", "SIM115", "E741"]
+"src/pcrc/envs/**/*.py" = ["D", "E501", "E741", "B007", "SIM115", "N812", "F841"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

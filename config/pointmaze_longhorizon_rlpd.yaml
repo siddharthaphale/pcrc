@@ -1,0 +1,78 @@
+# PointMaze Large LONG-HORIZON [14,18] + RLPD/DroQ learner recipe — quick test of whether a stronger base
+# learner closes the transfer gap the 5- and 9-level scaffolds could not. The scaffold reaches the easy
+# levels but the policy never masters the long true-start reaches (frontier stalls at level 1). RLPD's core
+# recipe — critic LayerNorm + high update-to-data ratio (Ball et al. 2023) — is the standard lever for
+# sparse-reward continuous control; if it lets the policy master the long reaches, held-out ℓ=0 transfers.
+# ONLY the learner changes vs config/pointmaze_longhorizon.yaml: sac.layer_norm true + updates_per_iter 16->48.
+# Same [14,18] bank, FROZEN controller, 5-level scaffold, eval-max_steps fix in place.
+
+defaults:
+  env_id: PointMaze_Large-v3
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 4000
+  max_steps_per_episode: 500
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 300000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 48          # RLPD: high update-to-data ratio (was 16)
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.45
+  reward_distance_threshold: 0.45
+  success_ema_alpha: 0.2
+  random_eps: 0.1
+  noise_eps: 0.1
+  num_workers: 6
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+  layer_norm: true              # RLPD: LayerNorm in the critic MLP
+
+scaffold:
+  n_levels: 5
+  level_fractions: [0.0, 0.25, 0.5, 0.75, 0.9]
+  oracle_direct_level: 4
+  oracle_bypass_level: 0
+  kwargs:
+    lambda_h: 1.0
+    lambda_u: 1.0
+    lambda_p: 0.2
+    lambda_stale: 0.1
+    tau: 0.5
+    epsilon: 0.1
+    beta_s: 0.2
+    beta_u: 0.2
+    tau_lo: 0.15
+    tau_hi: 0.8
+    u_lo: -0.25
+    u_hi: 0.5
+    n_min: 15
+    cooldown: 3
+    hysteresis_windows: 2
+    stale_advance_windows: 4
+    clip: 3.0
+    anneal_iters: 1500
+
+reverse_curriculum:
+  reverse_curriculum: true
+  reverse_curriculum_start_progress: 0.9
+  reverse_curriculum_decay_iters: 1500
+
+sampler_kwargs:
+  uniform: {}

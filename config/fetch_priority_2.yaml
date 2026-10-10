@@ -1,0 +1,99 @@
+# Pre-VLA Priority 2 — Larger dense bank, tabular vs MLP curator.
+#
+# Plan reference: docs/actor_curator_gymrobotics_implementation_plan.md
+#   §4 Priority 2 (large context bank, MLP curator main result, shuffled /
+#                  random feature controls)
+#   §9 risk #13 (MLP memorization controls)
+#
+# The bank for Priority 2 is a fresh calibration over 500–800 train
+# contexts (larger than 1a's default). Calibrate via:
+#   uv run python scripts/priority_1a_fetch_calibration.py \
+#       --config config/fetch_priority_1a.yaml \
+#       --exp-name priority_2_calibration \
+#       --num-train 500 --num-held-out 100 \
+#       --starter-checkpoint <CHECKPOINTS_ROOT>/fetch_starter_FetchPushDense-v4.pt
+# then point ``defaults.bank_path`` at the resulting bank.
+
+defaults:
+  bank_path: results/priority_2_calibration/calibration/bank.json
+  env_id: FetchPushDense-v4
+
+loop:
+  n_iterations: 100
+  episodes_per_iteration: 32
+  max_steps_per_episode: 50
+  eval_interval: 10
+  n_eval_episodes_per_context: 4
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  utility_clip_eps: 0.2
+  utility_center: true
+  utility_scale: true
+  success_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+
+ppo:
+  hidden_sizes: [128, 128]
+  learning_rate: 3.0e-4
+  clip_eps: 0.2
+  gamma: 0.99
+  gae_lambda: 0.95
+  n_epochs: 10
+  minibatch_size: 128
+  entropy_coef: 0.0
+  value_coef: 0.5
+  max_grad_norm: 0.5
+  log_std_init: -0.5
+
+# Priority 2 conditions per §4: uniform, best_proxy, tabular_actor_curator,
+# mlp_actor_curator + shuffled_feature_mlp + random_feature_mlp. Each
+# perturbation flavor of the MLP curator is exposed as its own
+# pseudo-condition name; the launcher resolves the suffix to the
+# perturbation flag on construction.
+sampler_kwargs:
+  uniform: {}
+  reward_greedy:
+    alpha: 5.0
+    ema_alpha: 0.1
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  learning_progress:
+    alpha: 10.0
+    fast_ema_alpha: 0.3
+    slow_ema_alpha: 0.05
+  tabular_actor_curator:
+    eta: 0.3
+  mlp_actor_curator:
+    alpha: 1.0
+    learning_rate: 1.0e-3
+    clip_eps: 0.2
+    n_epochs: 4
+    hidden_sizes: [128, 64]
+    dropout: 0.1
+    weight_decay: 1.0e-4
+    feature_noise: 0.0
+    feature_perturbation: none
+  mlp_actor_curator_shuffled:
+    alpha: 1.0
+    learning_rate: 1.0e-3
+    clip_eps: 0.2
+    n_epochs: 4
+    hidden_sizes: [128, 64]
+    dropout: 0.1
+    weight_decay: 1.0e-4
+    feature_noise: 0.0
+    feature_perturbation: shuffled
+    feature_perturbation_seed: 12345
+  mlp_actor_curator_random:
+    alpha: 1.0
+    learning_rate: 1.0e-3
+    clip_eps: 0.2
+    n_epochs: 4
+    hidden_sizes: [128, 64]
+    dropout: 0.1
+    weight_decay: 1.0e-4
+    feature_noise: 0.0
+    feature_perturbation: random
+    feature_perturbation_seed: 12345

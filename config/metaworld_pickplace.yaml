@@ -1,0 +1,79 @@
+# Meta-World pick-place-v3 — PCRC scaffold diagnostic for the multi-task #5 conflict bank.
+# pick-place = grasp + lift + transport (in-air goal): expected NOT learnable at ℓ=0 from scratch
+# (the grasp wall), but learnable via a reverse-curriculum that bootstraps the grasp (object starts
+# near the in-air goal with the hand on it, anneal toward the table). The conflict-bank hypothesis:
+# pick-place wants HIGH/curriculum scaffold while push (config/metaworld_curriculum.yaml) wants LOW — a
+# no-compromise pacing conflict a single global schedule can't serve. This diagnostic measures the
+# pick-place transfer profile (fixed0/2/4 vs online curriculum vs global_anneal) at ℓ=0.
+# Conditions resolve via pcrc.training.conditions.resolve_condition.
+
+defaults:
+  env_id: metaworld:pick-place-v3:handnear:graspcur
+  n_train: 100
+  n_held: 50
+  bank_seed: 0
+
+loop:
+  n_iterations: 3000
+  max_steps_per_episode: 150
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 400000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 16
+  eval_interval: 100
+  n_eval_episodes_per_context: 2
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.05
+  reward_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+  random_eps: 0.3
+  noise_eps: 0.2
+  num_workers: 8
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+scaffold:
+  n_levels: 5
+  level_fractions: [0.0, 0.25, 0.5, 0.75, 0.9]
+  oracle_dist_threshold: 0.18
+  oracle_low_level: 0
+  oracle_high_level: 4
+  kwargs:
+    lambda_h: 1.0
+    lambda_u: 1.0
+    lambda_p: 0.2
+    lambda_stale: 0.1
+    tau: 0.5
+    epsilon: 0.1
+    beta_s: 0.2
+    beta_u: 0.2
+    tau_lo: 0.15
+    tau_hi: 0.8
+    u_lo: -0.25
+    u_hi: 0.5
+    n_min: 15
+    cooldown: 3
+    hysteresis_windows: 2
+    stale_advance_windows: 4
+    clip: 3.0
+    anneal_iters: 2250
+
+reverse_curriculum:
+  reverse_curriculum: true
+  reverse_curriculum_start_progress: 0.9
+  reverse_curriculum_decay_iters: 2250
+
+sampler_kwargs:
+  uniform: {}

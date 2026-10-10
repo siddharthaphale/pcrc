@@ -1,0 +1,34 @@
+# MiniGrid MultiRoom-N6 — PCRC discrete-PPO LONG-HORIZON navigation (Experiment Campaign 4, Stage B —
+# recognized-benchmark long-horizon arm). Six rooms in a chain (vs N4-S5's four), a genuinely longer
+# navigation horizon on a standard MiniGrid benchmark. Scaffold = route progress (_apply_multiroom_scaffold
+# is generic over room count: places the agent at room round(stage/4 * (n_rooms-1)); stage 4 = next to goal).
+# Manual scaffold conditions only (route operator); no trajectory ladder needed. Eval on held-out layouts at
+# level 0. Controller FROZEN. CPU (discrete PPO, device=cpu) — parallelised across the CPU array, not GPUs.
+
+defaults:
+  env_id: MiniGrid-MultiRoom-N6-v0
+  n_train: 200
+  n_held: 100
+  bank_seed: 0
+
+loop:
+  n_iterations: 3000
+  episodes_per_iter: 16
+  max_steps: 360
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip: 0.2
+  epochs: 4
+  minibatch: 1024
+  lr: 2.5e-4
+  ent_coef: 0.01
+  encoder: cnn
+  eval_interval: 50
+  n_eval_episodes: 50
+  seed: 0
+
+scaffold:
+  n_levels: 5
+  level_fractions: [0.0, 0.25, 0.5, 0.75, 1.0]
+  anneal_iters: 2250
+  stale_advance_windows: 4

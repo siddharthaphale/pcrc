@@ -1,0 +1,70 @@
+# Pre-VLA Priority 1b — Dense PPO smoke on FetchReachDense-v4.
+#
+# Plan reference: docs/actor_curator_gymrobotics_implementation_plan.md
+#   §4 Priority 1b (dense PPO smoke)
+#   §8 (RunLogger streams)
+#   §10 Stage A2 (calibration-derived constants live here)
+
+defaults:
+  bank_path: results/priority_1a_calibration/calibration/bank.json
+  env_id: FetchReachDense-v4
+
+loop:
+  n_iterations: 50
+  episodes_per_iteration: 8
+  max_steps_per_episode: 50
+  eval_interval: 10
+  n_eval_episodes_per_context: 4
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  utility_clip_eps: 0.2
+  utility_center: true
+  # Normalize the per-context utility (plan §Priority 1b: "center AND
+  # normalize"). Standardized utilities + moderate eta → gradual OSMD
+  # concentration instead of slamming the q_max cap.
+  utility_scale: true
+  success_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+
+ppo:
+  hidden_sizes: [64, 64]
+  learning_rate: 3.0e-4
+  clip_eps: 0.2
+  gamma: 0.99
+  gae_lambda: 0.95
+  n_epochs: 10
+  minibatch_size: 64
+  entropy_coef: 0.0
+  value_coef: 0.5
+  max_grad_norm: 0.5
+  log_std_init: -0.5
+
+# Per-condition sampler defaults. The launcher merges these on top of
+# loop.epsilon / loop.q_max so the bank-wide exploration floor + cap
+# pass through cleanly. Conditions: uniform, reward_greedy, headroom,
+# learning_progress, tabular_actor_curator, mlp_actor_curator.
+sampler_kwargs:
+  uniform: {}
+  reward_greedy:
+    alpha: 5.0
+    ema_alpha: 0.1
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  learning_progress:
+    alpha: 10.0
+    fast_ema_alpha: 0.3
+    slow_ema_alpha: 0.05
+  tabular_actor_curator:
+    eta: 0.3
+  mlp_actor_curator:
+    alpha: 1.0
+    learning_rate: 1.0e-3
+    clip_eps: 0.2
+    n_epochs: 4
+    hidden_sizes: [64, 64]
+    dropout: 0.0
+    weight_decay: 0.0
+    feature_noise: 0.0
+    feature_perturbation: none

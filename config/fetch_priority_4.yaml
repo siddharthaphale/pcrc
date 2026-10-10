@@ -1,0 +1,75 @@
+# Pre-VLA Priority 4 — ACDC-lite + full proxy + AC suite.
+#
+# Plan reference: docs/actor_curator_gymrobotics_implementation_plan.md
+#   §4 Priority 4 (full proxy + ACDC-lite + AC comparison on sparse env)
+#   §9 risk #8 (ACDC-lite divergence-from-paper risk)
+#
+# Default sparse env: FetchPush-v4 (same bank as Priority 3). The
+# bank may be shared with Priority 3 to keep the comparison apples-to-apples.
+
+defaults:
+  bank_path: results/priority_3_sparse_calibration/calibration/bank.json
+  env_id: FetchPush-v4
+
+loop:
+  n_iterations: 500
+  max_steps_per_episode: 50
+  her_strategy: future
+  her_n_sampled_goal: 4
+  replay_capacity: 200000
+  minibatch_size: 256
+  learning_starts: 1000
+  updates_per_iter: 4
+  eval_interval: 25
+  n_eval_episodes_per_context: 4
+  seed: 42
+  epsilon: 0.05
+  q_max: 0.5
+  success_distance_threshold: 0.05
+  success_ema_alpha: 0.2
+
+sac:
+  hidden_sizes: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  tau: 0.005
+  target_entropy: null
+  init_log_alpha: -1.6
+  action_low: -1.0
+  action_high: 1.0
+
+# Full proxy + ACDC-lite + AC suite — every Stage D condition under
+# the single Priority 4 launcher.
+sampler_kwargs:
+  uniform: {}
+  reward_greedy:
+    alpha: 5.0
+    ema_alpha: 0.1
+  headroom:
+    alpha: 20.0
+    ema_alpha: 0.1
+  learning_progress:
+    alpha: 10.0
+    fast_ema_alpha: 0.3
+    slow_ema_alpha: 0.05
+  acdc_lite:
+    sigma_quality: 0.2
+    alpha: 5.0
+    lambda_min: 0.1
+    lambda_max: 0.9
+    lambda_center: 0.5
+    lambda_scale: 10.0
+    recent_buffer_size: 16
+    ema_alpha: 0.2
+  tabular_actor_curator:
+    eta: 1.0
+  mlp_actor_curator:
+    alpha: 1.0
+    learning_rate: 1.0e-3
+    clip_eps: 0.2
+    n_epochs: 4
+    hidden_sizes: [64, 64]
+    dropout: 0.0
+    weight_decay: 0.0
+    feature_noise: 0.0
+    feature_perturbation: none
